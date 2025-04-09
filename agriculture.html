@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Agriculture Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Smart Agriculture Dashboard</h1>
+    </header>
+    <main>
+        <section class="info">
+            <h2>Crop Information</h2>
+            <div id="crop-info">
+                <p>Crop Type: <span id="crop-type">N/A</span></p>
+                <p>Soil Moisture: <span id="soil-moisture">N/A</span></p>
+                <p>Temperature: <span id="temperature">N/A</span></p>
+                <p>Crop Health ID: <span id="crop-health-id">N/A</span></p>
+            </div>
+            <input type="file" id="crop-photo" accept="image/*" />
+            <img id="photo-preview" src="" alt="Crop Photo Preview" style="display:none;" />
+            <button id="analyze-button">Analyze Crop Health</button>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 Smart Agriculture System</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
