@@ -1,0 +1,39 @@
+document.getElementById('crop-photo').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.getElementById('photo-preview');
+            img.src = e.target.result;
+            img.style.display = 'block'; // Show the image preview
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+document.getElementById('analyze-button').addEventListener('click', function() {
+    const fileInput = document.getElementById('crop-photo');
+    const file = fileInput.files[0];
+    if (file) {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        // Replace with your actual API endpoint and API key
+        fetch('https://crop.kindwise.com/api/v1', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'duokYbErxwkjFrLFuBtY4PrjfEJVR5gts8IXxanna5zkisbSqz' // Replace with your actual API key
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Assuming the API returns these fields
+            const cropType = data.cropType || "N/A";
+            const soilMoisture = data.soilMoisture || "N/A";
+            const temperature = data.temperature || "N/A";
