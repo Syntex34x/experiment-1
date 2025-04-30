@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HexShop Chatbot</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #fafafa;
+    }
+
+    #chat-icon {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #007bff;
+      color: #fff;
+      padding: 15px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    #chat-icon:hover {
+      background-color: #0056b3;
+    }
+
+    #chat-box {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      width: 320px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      display: none;
+      overflow: hidden;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #chat-header {
+      background-color: #007bff;
+      color: white;
+      padding: 10px;
+      font-size: 18px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    #chat-body {
+      padding: 15px;
+    }
+
+    .message {
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-bottom: 10px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #response {
+      margin-top: 10px;
+      color: #333;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="chat-icon" onclick="openChat()">Help</div>
+
+<div id="chat-box">
+  <div id="chat-header">Welcome to HexShop!</div>
+  <div id="chat-body">
+    <div class="message">How may I help you today?</div>
+    <input type="text" id="name" placeholder="Your Name" style="display:block;">
+    <input type="text" id="mobile" placeholder="Mobile No." style="display:none;">
+    <input type="text" id="order-no" placeholder="Order No." style="display:none;">
+
+    <div id="options" style="display:none;">
+      <button onclick="trackOrder()">Track Order</button>
+      <button onclick="checkComplaintStatus()">Check Complaint Status</button>
+      <button onclick="complaint()">Complaint</button>
+    </div>
+
+    <div id="track-order" style="display:none;">
+      <input type="text" id="track-order-input" placeholder="Enter Order No. to track">
+      <button onclick="submitTrackOrder()">Submit</button>
+    </div>
+
+    <div id="complaint-status" style="display:none;">
+      <input type="text" id="complaint-status-input" placeholder="Enter Order No. to check status">
+      <button onclick="submitComplaintStatus()">Submit</button>
+    </div>
+
+    <div id="complaint-form" style="display:none;">
+      <textarea id="complaint-text" placeholder="Describe your complaint"></textarea>
+      <button onclick="submitComplaint()">Submit</button>
+    </div>
+
+    <div id="response"></div>
+  </div>
+</div>
+
+<script>
+  function openChat() {
+    document.getElementById('chat-box').style.display = 'block';
+    document.getElementById('chat-icon').style.display = 'none';
+    resetChat();
+  }
+
+  function resetChat() {
+    document.getElementById('name').value = '';
+    document.getElementById('mobile').value = '';
+    document.getElementById('order-no').value = '';
+    document.getElementById('track-order-input').value = '';
+    document.getElementById('complaint-status-input').value = '';
+    document.getElementById('complaint-text').value = '';
+
+    document.getElementById('name').style.display = 'block';
+    document.getElementById('mobile').style.display = 'none';
+    document.getElementById('order-no').style.display = 'none';
+    document.getElementById('options').style.display = 'none';
+    document.getElementById('track-order').style.display = 'none';
+    document.getElementById('complaint-status').style.display = 'none';
+    document.getElementById('complaint-form').style.display = 'none';
+
+    document.getElementById('response').innerHTML = 'Welcome to HexShop! Please enter your name.';
+  }
+
+  function proceed(name) {
+    document.getElementById('response').innerHTML = `Hello, ${name}! Please enter your mobile number.`;
+    document.getElementById('name').style.display = 'none';
+    document.getElementById('mobile').style.display = 'block';
+    document.getElementById('mobile').onkeypress = function (e) {
+      if (e.key === 'Enter') proceedMobile(name);
+    };
+  }
+
+  document.getElementById('name').onkeypress = function (e) {
+    if (e.key === 'Enter') proceed(this.value);
+  };
+
+  function proceedMobile(name) {
+    var mobile = document.getElementById('mobile').value;
+    document.getElementById('response').innerHTML = `Thanks, ${name}. Now, please enter your order number.`;
+    document.getElementById('mobile').style.display = 'none';
+    document.getElementById('order-no').style.display = 'block';
+    document.getElementById('order-no').onkeypress = function (e) {
+      if (e.key === 'Enter') proceedOrder(name, mobile);
+    };
+  }
+
+  function proceedOrder(name, mobile) {
+    var orderNo = document.getElementById('order-no').value;
+    document.getElementById('response').innerHTML = `Hi ${name}, what would you like to do?`;
+    document.getElementById('order-no').style.display = 'none';
+    document.getElementById('options').style.display = 'block';
+  }
+
+  function trackOrder() {
+    document.getElementById('options').style.display = 'none';
+    document.getElementById('track-order').style.display = 'block';
+  }
+
+  function checkComplaintStatus() {
+    document.getElementById('options').style.display = 'none';
+    document.getElementById('complaint-status').style.display = 'block';
+  }
+
+  function complaint() {
+    document.getElementById('options').style.display = 'none';
+    document.getElementById('complaint-form').style.display = 'block';
+  }
+
+  function submitTrackOrder() {
+    var orderNo = document.getElementById('track-order-input').value;
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.send('action=trackOrder&orderNo=' + orderNo);
+    xhr.onload = function () {
+      document.getElementById('response').innerHTML = xhr.responseText || 'Tracking information submitted.';
+    };
+  }
+
+  function submitComplaintStatus() {
+    var orderNo = document.getElementById('complaint-status-input').value;
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.send('action=complaintStatus&orderNo=' + orderNo);
+    xhr.onload = function () {
+      document.getElementById('response').innerHTML = xhr.responseText || 'Complaint status submitted.';
+    };
+  }
+
+  function submitComplaint() {
+    var orderNo = document.getElementById('order-no').value;
+    var complaint = document.getElementById('complaint-text').value;
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.send('action=submitComplaint&orderNo=' + orderNo + '&complaint=' + complaint);
+    xhr.onload = function () {
+      document.getElementById('response').innerHTML = xhr.responseText || 'Complaint submitted.';
+    };
+  }
+
+  document.querySelectorAll('input, textarea').forEach(function (el) {
+    el.addEventListener('input', function () {
+      const text = el.value.trim().toLowerCase();
+      if (text === 'hi' || text === 'hello' || text === 'hii') {
+        resetChat();
+      }
+    });
+  });
+</script>
+
+<?php
+if (isset($_POST['action'])) {
+  $orderNo = $_POST['orderNo'];
+  if ($_POST['action'] == 'trackOrder') {
+    $orders = array(
+      'ORD001' => 'Shipped',
+      'ORD002' => 'Delivered'
+    );
+    echo isset($orders[$orderNo]) ? "Order Status: " . $orders[$orderNo] : "Order not found.";
+  } elseif ($_POST['action'] == 'complaintStatus') {
+    $complaints = array(
+      'ORD001' => 'Open',
+      'ORD002' => 'Closed'
+    );
+    echo isset($complaints[$orderNo]) ? "Complaint Status: " . $complaints[$orderNo] : "No complaint found for this order.";
+  } elseif ($_POST['action'] == 'submitComplaint') {
+    $complaint = $_POST['complaint'];
+    echo "Complaint submitted successfully for order $orderNo.";
+  }
+  exit;
+}
+?>
+
+</body>
+</html>
